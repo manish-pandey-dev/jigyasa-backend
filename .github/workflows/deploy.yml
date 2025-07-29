@@ -6,7 +6,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  SERVICE_NAME: ${{ secrets.SERVICE_NAME }}  
+  SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
   REGION: ${{ secrets.GCP_REGION }}
 
 jobs:
@@ -34,8 +34,9 @@ jobs:
     - uses: google-github-actions/setup-gcloud@v1
     - run: |
         gcloud run deploy $SERVICE_NAME \
-          --source . \
+          --image gcr.io/$PROJECT_ID/$SERVICE_NAME \
           --platform managed \
           --region $REGION \
           --allow-unauthenticated \
-          --port 8080
+          --port 8080 \
+          --service-account="github-actions@$PROJECT_ID.iam.gserviceaccount.com"
