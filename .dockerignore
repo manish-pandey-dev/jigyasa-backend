@@ -1,0 +1,18 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# GCP
+github-actions-key.json
+*.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

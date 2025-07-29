@@ -1,44 +1,59 @@
-from fastapi import FastAPI
+﻿from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import upload
+from datetime import datetime
 import os
-from dotenv import load_dotenv
+import uvicorn
 
-# Load environment variables
-load_dotenv()
+# Import routers
+from app.routers import api
 
-# Create FastAPI app
+# Create FastAPI instance
 app = FastAPI(
     title="Jigyasa Backend API",
-    description="Audio-to-Quiz Generation API",
-    version="1.0.0"
+    description="Backend service for Jigyasa application",
+    version="1.0.0",
+    docs_url="/docs",  # Swagger UI
+    redoc_url="/redoc"  # ReDoc UI
 )
 
-# Configure CORS
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",  # React development server
-        "https://*.netlify.app",   # Netlify domains
-        "https://netlify.app",     # Netlify domains
-        "https://*.vercel.app",    # Vercel domains (alternative to Netlify)
-    ],
+    allow_origins=["*"],  # Configure this properly in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Include routers
-app.include_router(upload.router, prefix="/api", tags=["upload"])
+app.include_router(api.router, prefix="/api", tags=["api"])
 
+# Health check endpoint (required for Cloud Run)
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "service": "Jigyasa Backend",
+        "version": "1.0.0"
+    }
+
+# Root endpoint
 @app.get("/")
 async def root():
     return {
-        "message": "🤔 Jigyasa Backend API is running!",
-        "version": "1.0.0",
-        "docs": "/docs"
+        "message": "Welcome to Jigyasa Backend API",
+        "docs": "/docs",
+        "health": "/health",
+        "project": "jigyasa-app-2025"
     }
 
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy", "service": "jigyasa-backend"}
+# Run the app (for local development)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run(
+        "app.main:app",
+        host="0.0.0.0",
+        port=port,
+        log_level="info"
+    )
