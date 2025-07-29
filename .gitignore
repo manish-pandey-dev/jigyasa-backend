@@ -1,0 +1,23 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*.class
+venv/
+.env
+
+# GCP - CRITICAL: Prevent service account keys
+github-actions-key*.json
+*-key.json
+service-account-*.json
+
+# Allow specific JSON files
+!package*.json
+!tsconfig*.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
