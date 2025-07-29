@@ -33,22 +33,19 @@ jobs:
       with:
         credentials_json: ${{ secrets.GCP_SA_KEY }}
     
-    - uses: google-github-actions/setup-gcloud@v1
-    
-    - name: Deploy to Cloud Run from Source
-      run: |
-        gcloud run deploy $SERVICE_NAME \
-          --source . \
-          --platform managed \
-          --region $REGION \
-          --allow-unauthenticated \
-          --port 8080 \
-          --service-account="github-actions@$PROJECT_ID.iam.gserviceaccount.com" \
-          --set-env-vars="ENVIRONMENT=production"
-    
+    - name: Deploy to Cloud Run
+      uses: google-github-actions/deploy-cloudrun@v2
+      with:
+        service: ${{ secrets.SERVICE_NAME }}
+        region: ${{ secrets.GCP_REGION }}
+        source: .
+        flags: |
+          --allow-unauthenticated
+          --port=8080
+          --service-account=github-actions@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com
+          --set-env-vars=ENVIRONMENT=production
+        
     - name: Get Service URL
       run: |
-        SERVICE_URL=$(gcloud run services describe $SERVICE_NAME --region=$REGION --format="value(status.url)")
+        SERVICE_URL=$(gcloud run services describe ${{ secrets.SERVICE_NAME }} --region=${{ secrets.GCP_REGION }} --format="value(status.url)")
         echo "🚀 Service deployed at: $SERVICE_URL"
-        echo "📋 Health check: $SERVICE_URL/health"
-        echo "📖 API docs: $SERVICE_URL/docs"
